@@ -58,7 +58,7 @@ class GPSMonitorNode:
         self.covariance_threshold = covariance_threshold
         self.subscribed_topics = list()
         self.selected_topic = None
-        self.selected_topic_on_top = 0
+        self.selected_topic_on_top = INF
         self.selected_topic_subscriber = rospy.Subscriber(self.mux_service_name + 'selected',
                                                           rospy_str, self.selected_topic_callback)
         self.subscribers_map = dict()  # This will maintain subscribers to all the topics
@@ -99,8 +99,7 @@ class GPSMonitorNode:
 
     def set_best_sensor(self):
         # Based on covariance, timeout, switch delay, fix etc set self.selected_topic
-        covariances = filter(lambda s: all(s), [(sensor.topic, sensor.covariance())
-                                                for sensor in self.subscribers_map.values()])
+        covariances = [(sensor.topic, sensor.covariance()) for sensor in self.subscribers_map.values()]
         covariances.sort(key=lambda c: c[1])  # Sort according to covariance
         select_topic = self.selected_topic
 
@@ -142,7 +141,9 @@ class GPSMonitorNode:
             self.selected_topic = topic
             self.selected_topic_on_top = 0
         except rospy.ServiceException as e:
-            rospy.logerr("Failed to make mux select topic: %s" % topic)
+            self.selected_topic = None
+            self.selected_topic_on_top = INF
+            rospy.logerr("Failed to make mux select topic: %s - %s" % (topic, str(e)))
 
     def mux_topic_list(self):
         list_service_name = self.mux_service_name + 'list'
