@@ -7,6 +7,7 @@ and monitors GPS sensors to select one from them based on their health.
 
 PKG = "gps_mux_monitor"
 TOPICS_TIMEOUT = 100
+SENSOR_TIMEOUT = 25
 INF = float('inf')
 
 import rospy
@@ -21,18 +22,19 @@ class GPSSubscriber:
     """
     Subscribes to a GPS sensor and maintains the latest message received from there.
     """
-    def __init__(self, topic):
+    def __init__(self, topic, timeout):
         self.topic = topic
+        self.timeout = timeout
         self.subscriber = rospy.Subscriber(topic, NavSatFix, self.callback)
         self.latest_message = None
         self.latest_message_time = None
 
     def callback(self, navsat_fix_msg):
         self.latest_message = navsat_fix_msg
-        self.latest_message = time.time()
+        self.latest_message_time = time.time()
 
     def covariance(self):
-        if self.latest_message is None:
+        if self.latest_message is None or (time.time() - self.latest_message_time) >= SENSOR_TIMEOUT:
             return INF
         return sum(self.latest_message.position_covariance)
 
@@ -85,7 +87,7 @@ class GPSMonitorNode:
                     for topic in topics:
                         topic_map[topic] = True
                         if topic not in self.subscribers_map:
-                            subscriber = GPSSubscriber(topic)
+                            subscriber = GPSSubscriber(topic, self.timeout)
                             self.subscribers_map[topic] = subscriber
                     for topic in self.subscribers_map:
                         if topic not in topic_map:
