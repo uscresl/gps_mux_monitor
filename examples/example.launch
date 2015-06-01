@@ -1,0 +1,11 @@
+<launch>
+    <node pkg="topic_tools" type="mux" name="gps_mux_start" args="gps_mux_out /knarr/novatel_fix /imu_gps/fix mux:=gps_mux">
+        <param name="mux" value="gps_mux"/>
+    </node>
+    <node pkg="gps_mux_monitor" type="gps_mux_monitor_node.py" name="$(anon gps_mux_monitor)" output="screen">
+        <param name="switch_delay" value="25"/>
+        <param name="timeout" value="25"/>
+        <param name="mux_service_name" value="gps_mux"/>
+        <param name="covariance_threshold" value="25.25"/>
+    </node>
+</launch>

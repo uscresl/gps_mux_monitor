@@ -12,8 +12,8 @@ INF = float('inf')
 
 import rospy
 import roslib; roslib.load_manifest(PKG)
-from sensor_msgs import NavSatFix
-from topic_tools.srv import MuxList, MuxSelect
+from sensor_msgs.msg import NavSatFix
+from topic_tools.srv import MuxList, MuxSelect, MuxSelectRequest
 from std_msgs.msg import String as rospy_str
 import time
 
@@ -65,6 +65,7 @@ class GPSMonitorNode:
                                                           rospy_str, self.selected_topic_callback)
         self.subscribers_map = dict()  # This will maintain subscribers to all the topics
 
+    def start(self):
         self.spin()
 
     def spin(self):
@@ -137,7 +138,7 @@ class GPSMonitorNode:
         rospy.wait_for_service(select_service_name)
         try:
             service_call = rospy.ServiceProxy(select_service_name, MuxSelect)
-            select_arg = MuxSelect(topic=topic)
+            select_arg = MuxSelectRequest(topic=topic)
             service_call(select_arg)
 
             self.selected_topic = topic
@@ -160,11 +161,13 @@ class GPSMonitorNode:
         return None
 
     def selected_topic_callback(self, topic):
-        self.selected_topic = str(topic)
+        self.selected_topic = topic.data
 
 
 if __name__ == "__main__":
+    g = None
     try:
+        rospy.init_node('gps_mux_monitor')
         mux_service_name = rospy.get_param('~mux_service_name')
         switch_delay = int(rospy.get_param('~switch_delay'))
         timeout = int(rospy.get_param('~timeout'))
@@ -177,3 +180,5 @@ if __name__ == "__main__":
     except ValueError as e:
         print "switch_delay and timeout must be integers"
         print e
+    if g is not None:
+        g.start()

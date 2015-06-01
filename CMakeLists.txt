@@ -6,6 +6,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  sensor_msgs
+  topic_tools
 )
 
 ## Generate added messages and services with any dependencies listed here
@@ -18,7 +20,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES record_service
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+    CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs topic_tools
 #  DEPENDS system_lib
 )
 
