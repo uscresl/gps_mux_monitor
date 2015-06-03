@@ -105,7 +105,7 @@ class GPSMonitorNode:
                         topic_map[topic] = True
                         if topic not in self.subscribers_map:
                             # Then subscribe to the new topic
-                            subscriber = GPSSubscriber(topic, self.timeout)
+                            subscriber = GPy statesSSubscriber(topic, self.timeout)
                             self.subscribers_map[topic] = subscriber
                     for topic in self.subscribers_map:
                         if topic not in topic_map:
@@ -159,6 +159,7 @@ class GPSMonitorNode:
                 select_topic = self.selected_topic
 
         if select_topic != self.selected_topic:
+            rospy.loginfo("Selected Sensor: %s" % select_topic)
             # Then make the mux select the new topic
             self.mux_select(select_topic)
 
