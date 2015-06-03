@@ -105,7 +105,7 @@ class GPSMonitorNode:
                         topic_map[topic] = True
                         if topic not in self.subscribers_map:
                             # Then subscribe to the new topic
-                            subscriber = GPy statesSSubscriber(topic, self.timeout)
+                            subscriber = GPSSubscriber(topic, self.timeout)
                             self.subscribers_map[topic] = subscriber
                     for topic in self.subscribers_map:
                         if topic not in topic_map:
