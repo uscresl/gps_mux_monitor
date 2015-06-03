@@ -66,8 +66,6 @@ class GPSMonitorNode:
     """
     def __init__(self, mux_service_name, switch_delay, timeout, covariance_threshold):
         self.mux_service_name = mux_service_name  # This is the name of the mux's service
-        if self.mux_service_name[-1] != '/':  # Add a slash to conform with mux topic formats
-            self.mux_service_name += '/'
         rospy.loginfo("Selecting mux service name: %s" % self.mux_service_name)
         self.switch_delay = switch_delay  # The delay beyond which a sensor is switched from if it doesn't perform well
         self.timeout = timeout  # Timeout constant after which a sensor's message is considered 'old'
@@ -159,6 +157,9 @@ class GPSMonitorNode:
                 # Then we found no sensor with a fix. Don't change the selected topic
                 select_topic = self.selected_topic
 
+        if select_topic is None:
+            rospy.loginfo("No sensor has a fix")
+
         if select_topic != self.selected_topic:
             rospy.loginfo("Selected Sensor: %s" % select_topic)
             # Then make the mux select the new topic
@@ -169,7 +170,7 @@ class GPSMonitorNode:
         Make a request to the mux service to select this sensor
         :param topic: string representing the topic of the sensor fix messages
         """
-        select_service_name = self.mux_service_name + 'select'
+        select_service_name = self.mux_service_name + '/select'
         rospy.wait_for_service(select_service_name)
         try:
             service_call = rospy.ServiceProxy(select_service_name, MuxSelect)
@@ -188,7 +189,7 @@ class GPSMonitorNode:
         Make a request to the mux service to get the list of topics it listens to
         :return: list of topics as string
         """
-        list_service_name = self.mux_service_name + 'list'
+        list_service_name = self.mux_service_name + '/list'
         rospy.wait_for_service(list_service_name)
         try:
             service_call = rospy.ServiceProxy(list_service_name, MuxList)
