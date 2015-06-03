@@ -68,6 +68,7 @@ class GPSMonitorNode:
         self.mux_service_name = mux_service_name  # This is the name of the mux's service
         if self.mux_service_name[-1] != '/':  # Add a slash to conform with mux topic formats
             self.mux_service_name += '/'
+        rospy.loginfo("Selecting mux service name: %s" % self.mux_service_name)
         self.switch_delay = switch_delay  # The delay beyond which a sensor is switched from if it doesn't perform well
         self.timeout = timeout  # Timeout constant after which a sensor's message is considered 'old'
         self.covariance_threshold = covariance_threshold
